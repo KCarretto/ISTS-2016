@@ -1,0 +1,3 @@
+WEBSCRIPT=http://www.myhosthere.com/path/to/file
+SRC=10.0.0.0
+DST=10.0.0.0
