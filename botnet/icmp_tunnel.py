@@ -33,6 +33,7 @@ def decrypt(string,password):
     string = string.replace("0x"," 0x").strip().split()
     for i in range(len(string)):
         output += chr(int(string[i],16)/ord(password[i % len(password)]))
+    print(output)
     return output
 
 
