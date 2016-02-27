@@ -1,4 +1,5 @@
 from icmp_tunnel import *
+import Queue
 import threading
 import os
 
@@ -60,7 +61,7 @@ def main():
     	handler = Handler(cmdQueue)
     	listener.start()
     	handler.start()
-
+main()
 
 ##TODO: TEST FILE TRANSFERS
 ##TODO: IMPLEMENT BOT BUILT-IN'S

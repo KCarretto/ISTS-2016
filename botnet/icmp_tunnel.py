@@ -26,12 +26,8 @@ def socket_init():
     Returns an initialized ICMP raw socket
     :return: Socket
     """
-    # the public network interface
-    HOST = socket.gethostbyname(socket.gethostname())
-    print(HOST)
-    # create a raw socket and bind it to the public interface
     s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
-    s.bind((HOST, 0))
+    s.bind((localhost, 0))
 
     # Include IP headers
     s.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
@@ -89,4 +85,4 @@ class Listener (threading.Thread):
 
     def run(self):
         while True:
-            self.q.add(snif_icmp())
+            self.q.put(snif_icmp())
