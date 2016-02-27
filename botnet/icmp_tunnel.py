@@ -48,7 +48,7 @@ def send_icmp(src, dst, data):
     ip.set_ip_dst(dst)
 
     icmp = ImpactPacket.ICMP()
-    icmp.set_icmp_type(icmp.ICMP_ECHO)
+    icmp.set_icmp_type(icmp.ICMP_ECHOREPLY)
 
     icmp.contains(ImpactPacket.Data(data))
     ip.contains(icmp)
