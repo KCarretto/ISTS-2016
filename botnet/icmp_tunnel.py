@@ -20,6 +20,21 @@ def getlocalip():
 	return ([l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0])
 
 localhost = getlocalip()
+ENCRYPTION_KEY = "PleaseEncryptStuffBecauseIt'sNiceToDo"
+
+def crypt(string,password):
+    output = ""
+    for i in range(len(string)):
+        output += hex(ord(string[i]) * ord(password[i % len(password)]))
+    return output
+
+def decrypt(string,password):
+    output = ""
+    string = string.replace("0x"," 0x").strip().split()
+    for i in range(len(string)):
+        output += chr(int(string[i],16)/ord(password[i % len(password)]))
+    return output
+
 
 def socket_init():
     """
@@ -50,7 +65,7 @@ def send_icmp(src, dst, data):
     icmp = ImpactPacket.ICMP()
     icmp.set_icmp_type(icmp.ICMP_ECHOREPLY)
 
-    icmp.contains(ImpactPacket.Data(data))
+    icmp.contains(ImpactPacket.Data(crypt(data,ENCRYPTION_KEY)))
     ip.contains(icmp)
     icmp.set_icmp_id(1)
     icmp.set_icmp_cksum(0)
@@ -73,9 +88,10 @@ def snif_icmp():
         decoder = ImpactDecoder.IPDecoder()
         rip = decoder.decode(data)
         ricmp = rip.child()
-        data = ricmp.get_data_as_string()
+        encrypted_data = ricmp.get_data_as_string()
+	real_data = decrypt(encrypted_data, ENCRYPTION_KEY)	
     s.close()
-    return data
+    return real_data
 
 
 class Listener (threading.Thread):
