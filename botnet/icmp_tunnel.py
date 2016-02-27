@@ -29,11 +29,13 @@ def crypt(string,password):
     return output
 
 def decrypt(string,password):
-    output = ""
-    string = string.replace("0x"," 0x").strip().split()
-    for i in range(len(string)):
-        output += chr(int(string[i],16)/ord(password[i % len(password)]))
-    print(output)
+    try:
+    	output = ""
+    	string = string.replace("0x"," 0x").strip().split()
+    	for i in range(len(string)):
+      		output += chr(int(string[i],16)/ord(password[i % len(password)]))
+    except Exception as e:
+	print e.output
     return output
 
 
@@ -59,43 +61,48 @@ def send_icmp(src, dst, data):
     """
     Build an ICMP Packet with specified data, and send it
     """
-    if sys.getsizeof(data) > 65000:
-	print("Payload too large")
-	return
 
-    ip = ImpactPacket.IP()
-    ip.set_ip_src(src)
-    ip.set_ip_dst(dst)
+    try:
 
-    icmp = ImpactPacket.ICMP()
-    icmp.set_icmp_type(icmp.ICMP_ECHOREPLY)
+   	ip = ImpactPacket.IP()
+    	ip.set_ip_src(src)
+    	ip.set_ip_dst(dst)
 
-    icmp.contains(ImpactPacket.Data(crypt(data,ENCRYPTION_KEY)))
-    ip.contains(icmp)
-    icmp.set_icmp_id(1)
-    icmp.set_icmp_cksum(0)
-    icmp.auto_checksum = 1
+    	icmp = ImpactPacket.ICMP()
+    	icmp.set_icmp_type(icmp.ICMP_ECHOREPLY)
 
-    s = socket_init()
+    	icmp.contains(ImpactPacket.Data(crypt(data,ENCRYPTION_KEY)))
+    	ip.contains(icmp)
+    	icmp.set_icmp_id(1)
+    	icmp.set_icmp_cksum(0)
+    	icmp.auto_checksum = 1
 
-    s.sendto(ip.get_packet(), (dst, 0))
-    s.close()
+    	s = socket_init()
+
+    	s.sendto(ip.get_packet(), (dst, 0))
+    	s.close()
+    except Exception as e:
+	print e.output
 
 def snif_icmp():
     """
         returns the next available ICMP Data
     :return: data
     """
-    s = socket_init()
-    if s in select.select([ s ], [], [])[0]:
-        data = s.recvfrom(65535)[0]
+    try:
+	    s = socket_init()
+	    if s in select.select([ s ], [], [])[0]:
+		data = s.recvfrom(65535)[0]
 
-        decoder = ImpactDecoder.IPDecoder()
-        rip = decoder.decode(data)
-        ricmp = rip.child()
-        encrypted_data = ricmp.get_data_as_string()
-	real_data = decrypt(encrypted_data, ENCRYPTION_KEY)	
-    s.close()
+		decoder = ImpactDecoder.IPDecoder()
+		rip = decoder.decode(data)
+		ricmp = rip.child()
+		encrypted_data = ricmp.get_data_as_string()
+		real_data = decrypt(encrypted_data, ENCRYPTION_KEY)	
+	        s.close()
+    except Exception as e:
+	print e.output
+
     return real_data
 
 

