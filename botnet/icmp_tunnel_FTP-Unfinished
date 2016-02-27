@@ -14,6 +14,8 @@ from impacket import ImpactPacket
 from Queue import Queue
 
 localhost = socket.gethostbyname(socket.gethostname())
+blocking = True
+
 
 def socket_init():
     """
@@ -84,3 +86,55 @@ class Listener (threading.Thread):
     def run(self):
         while True:
             self.q.add(snif_icmp())
+
+
+def send_file(dst, lines, buffersize=65500, delay=0):
+    """
+    Note any \n will result in a new line at the other end
+
+    :param dst: Destination
+    :param lines: lines of the file to send
+    :param buffersize: Size of the buffer in which to send information
+    :param delay: Time to wait between sends
+    :return:
+    """
+
+    send_icmp(localhost, dst, "FILE-TRANSFER-START")
+    strsum = ""
+    for s in lines:
+        if sys.getsizeof(strsum) + sys.getsizeof(s) + sys.getsizeof("\n") < buffersize:
+            strsum += s + "\n"
+        else:
+            send_icmp(localhost, dst, strsum)
+            strsum = ""
+            time.sleep(delay)
+
+    if len(strsum) > 0:
+            send_icmp(localhost, dst, strsum)
+
+    send_icmp(localhost, dst, "FILE-TRANSFER-END")
+    Blocking = False
+
+class FileReciever (threading.Thread):
+    def __init__(self, buf):
+        self.buf = buf
+        threading.Thread.__init__(self)
+
+    def run(self):
+        filequeue = Queue.Queue()
+        while snif_icmp() != "FILE-TRANSFER-END":
+            filequeue.add(snif_icmp())
+        self.buf = []
+        while not filequeue.empty():
+            line = ""
+            lastch = ""
+            for ch in filequeue.get():
+                if lastch == "\\":
+                    if ch == "n":
+                        self.buf.append(line)
+                        line = ""
+                elif ch == "\\":
+                    lastch = "\\"
+                else:
+                    line += ch
+        print("Output File: "+self.buf)

