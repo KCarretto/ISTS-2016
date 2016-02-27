@@ -59,6 +59,10 @@ def send_icmp(src, dst, data):
     """
     Build an ICMP Packet with specified data, and send it
     """
+    if sys.getsizeof(data) > 65000:
+	print("Payload too large")
+	return
+
     ip = ImpactPacket.IP()
     ip.set_ip_src(src)
     ip.set_ip_dst(dst)
