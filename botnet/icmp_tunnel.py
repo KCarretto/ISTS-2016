@@ -47,10 +47,8 @@ def socket_init():
     s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
     s.bind((localhost, 0))
 
-    # Include IP headers
     s.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
 
-    # receive all packages
     if os.name == 'nt':
         s.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
 
@@ -82,7 +80,7 @@ def send_icmp(src, dst, data):
     	s.sendto(ip.get_packet(), (dst, 0))
     	s.close()
     except Exception as e:
-	print e.output
+	print "Error Encountered - Sending ICMP"
 
 def snif_icmp():
     """
@@ -100,10 +98,10 @@ def snif_icmp():
 		encrypted_data = ricmp.get_data_as_string()
 		real_data = decrypt(encrypted_data, ENCRYPTION_KEY)	
 	        s.close()
+		return real_data 
     except Exception as e:
-	print e.output
+	print "Error Encountered - Sniffing ICMP"
 
-    return real_data
 
 
 class Listener (threading.Thread):
