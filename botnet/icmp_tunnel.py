@@ -25,13 +25,13 @@ ENCRYPTION_KEY = "PleaseEncryptStuffBecauseIt'sNiceToDo"
 
 def crypt(string,password):
     try:
-    	return encryptSecret(password,string)
+    	return crypto.encryptSecret(password,string)
     except Exception as e:
 	print e
 
 def decrypt(string,password):
     try:
-    	return decryptSecret(password,string)
+    	return crypto.decryptSecret(password,string)
     except Exception as e:
 	print e
 
