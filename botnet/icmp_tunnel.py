@@ -11,6 +11,7 @@ import threading
 
 from impacket import ImpactDecoder
 from impacket import ImpactPacket
+from impacket import crypto
 from Queue import Queue
 
 def getlocalip():
@@ -24,20 +25,13 @@ ENCRYPTION_KEY = "PleaseEncryptStuffBecauseIt'sNiceToDo"
 
 def crypt(string,password):
     try:
-    	output = ""
-    	for i in range(len(string)):
-       		output += hex(ord(string[i]) * ord(password[i % len(password)]))
-    	return output
+    	return encryptSecret(password,string)
     except Exception as e:
 	print e
 
 def decrypt(string,password):
     try:
-    	output = ""
-    	string = string.replace("0x"," 0x").strip().split()
-    	for i in range(len(string)):
-      		output += chr(int(string[i],16)/ord(password[i % len(password)]))
-	return output
+    	return decryptSecret(password,string)
     except Exception as e:
 	print e
 
